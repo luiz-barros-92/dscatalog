@@ -10,6 +10,8 @@ import com.luizbarros.dscatalog.entities.Category;
 import com.luizbarros.dscatalog.repositories.CategoryRepository;
 import com.luizbarros.dscatalog.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class CategoryService {	
 	
@@ -35,5 +37,18 @@ public class CategoryService {
 	@Transactional
 	public CategoryDTO insert(CategoryDTO dto) {
 		return new CategoryDTO(repository.save(new Category(null, dto.name())));
+	}
+
+	@Transactional
+	public CategoryDTO update(Long id, CategoryDTO dto) {
+		try {
+			Category entity = repository.getReferenceById(id);
+			entity.setName(dto.name());
+			entity = repository.save(entity);
+			return new CategoryDTO(entity);
+		}
+		catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id - " + id + ": not found");
+		}		
 	}
 }
