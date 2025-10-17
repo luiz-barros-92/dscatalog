@@ -1,4 +1,4 @@
-package com.luizbarros.dscatalog.controller;
+package com.luizbarros.dscatalog.controllers;
 
 import java.util.List;
 
