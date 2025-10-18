@@ -1,8 +1,9 @@
 package com.luizbarros.dscatalog.controllers;
 
 import java.net.URI;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +31,8 @@ public class CategoryController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<CategoryDTO>> findAll() {
-		return ResponseEntity.ok().body(service.findAll());		
+	public ResponseEntity<Page<CategoryDTO>> findAll(Pageable pageable){
+		return ResponseEntity.ok().body(service.findAll(pageable));		
 	}
 	
 	@GetMapping("/{id}")

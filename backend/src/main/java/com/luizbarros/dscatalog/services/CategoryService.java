@@ -1,8 +1,8 @@
 package com.luizbarros.dscatalog.services;
 
-import java.util.List;
-
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +25,9 @@ public class CategoryService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CategoryDTO> findAll(){
-		return repository.findAll().stream().map(CategoryDTO::new).toList();	
+	public Page<CategoryDTO> findAll(Pageable pageable){
+		Page<Category> page = repository.findAll(pageable);
+		return page.map(CategoryDTO::new);
 	}
 
 	@Transactional(readOnly = true)
