@@ -2,12 +2,15 @@ package com.luizbarros.dscatalog.services;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.luizbarros.dscatalog.dto.CategoryDTO;
 import com.luizbarros.dscatalog.entities.Category;
 import com.luizbarros.dscatalog.repositories.CategoryRepository;
+import com.luizbarros.dscatalog.services.exceptions.DatabaseException;
 import com.luizbarros.dscatalog.services.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -50,5 +53,18 @@ public class CategoryService {
 		catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException("Id - " + id + ": not found");
 		}		
+	}
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void delete(Long id) {
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException("Resource not found");
+		}
+		try {
+	        	repository.deleteById(id);    		
+		}
+	    	catch (DataIntegrityViolationException e) {
+	        	throw new DatabaseException("Referential integrity violation");
+	   	}
 	}
 }
