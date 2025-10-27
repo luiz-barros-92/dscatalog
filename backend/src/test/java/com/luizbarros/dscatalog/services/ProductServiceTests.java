@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.luizbarros.dscatalog.repositories.ProductRepository;
@@ -24,11 +25,17 @@ public class ProductServiceTests {
 	private ProductRepository repository;
 	
 	private Long existingId;
+	private Long nonExistingId;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		existingId = 1L;
-		Mockito.when(repository.existsById(existingId)).thenReturn(true);		
+		nonExistingId = 1000L;
+		
+		Mockito.when(repository.existsById(existingId)).thenReturn(true);
+		Mockito.when(repository.existsById(nonExistingId)).thenReturn(false);
+		
+		Mockito.doThrow(EmptyResultDataAccessException.class).when(repository).deleteById(nonExistingId);
 	}
 	
 	@Test
