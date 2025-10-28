@@ -6,18 +6,26 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.luizbarros.dscatalog.entities.Product;
 import com.luizbarros.dscatalog.repositories.ProductRepository;
 import com.luizbarros.dscatalog.services.exceptions.DatabaseException;
 import com.luizbarros.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.luizbarros.dscatalog.tests.Factory;
 
 
 @ExtendWith(SpringExtension.class)
@@ -32,12 +40,23 @@ public class ProductServiceTests {
 	private Long existingId;
 	private Long nonExistingId;
 	private Long dependentId;
+	private PageImpl<Product> page;
+	private Product product;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		existingId = 1L;
 		nonExistingId = 1000L;
 		dependentId = 3L;
+		product = Factory.createProduct();
+		page = new PageImpl<>(List.of(product));
+		
+		when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
+		
+		when(repository.save(ArgumentMatchers.any())).thenReturn(product);
+		
+		when(repository.findById(existingId)).thenReturn(Optional.of(product));
+		when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 		
 		when(repository.existsById(existingId)).thenReturn(true);
 		when(repository.existsById(nonExistingId)).thenReturn(false);
