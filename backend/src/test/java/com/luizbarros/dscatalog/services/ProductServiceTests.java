@@ -70,6 +70,20 @@ public class ProductServiceTests {
 	}
 	
 	@Test
+	public void findByIdShouldReturnProductDTOWhenIdExists() {
+		ProductDTO dto = service.findById(existingId);
+		assertNotNull(dto);
+		assertEquals(existingId, dto.id());
+		verify(repository).findById(existingId);
+	}
+	
+	@Test
+	public void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+		assertThrows(ResourceNotFoundException.class, () -> service.findById(nonExistingId));
+		verify(repository).findById(nonExistingId);
+	}
+	
+	@Test
 	public void findAllPagedShouldReturnPage() {
 		Pageable pageable = PageRequest.of(0, 10);
 		Page<ProductDTO> result = service.findAll(pageable);
