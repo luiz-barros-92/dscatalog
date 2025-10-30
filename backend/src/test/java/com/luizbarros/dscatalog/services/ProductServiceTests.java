@@ -53,6 +53,7 @@ public class ProductServiceTests {
 	private PageImpl<Product> page;
 	private Product product;
 	private Category category;
+	private ProductDTO productDTO;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -62,6 +63,7 @@ public class ProductServiceTests {
 		product = Factory.createProduct();
 		category = Factory.createCategory();
 		page = new PageImpl<>(List.of(product));
+		productDTO = Factory.createProductDTO();
 		
 		when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
 		
@@ -82,6 +84,17 @@ public class ProductServiceTests {
 		
 		doThrow(EmptyResultDataAccessException.class).when(repository).deleteById(nonExistingId);
 		doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
+	}
+	
+	@Test
+	public void  updateShouldReturnProductDTOWhenIdExists() {
+		ProductDTO dto = service.update(existingId, productDTO);
+		assertNotNull(dto);		
+	}
+	
+	@Test
+	public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+		assertThrows(ResourceNotFoundException.class, () -> service.update(nonExistingId, productDTO));
 	}
 	
 	@Test
