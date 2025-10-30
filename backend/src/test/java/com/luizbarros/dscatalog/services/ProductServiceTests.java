@@ -24,11 +24,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.luizbarros.dscatalog.dto.ProductDTO;
+import com.luizbarros.dscatalog.entities.Category;
 import com.luizbarros.dscatalog.entities.Product;
+import com.luizbarros.dscatalog.repositories.CategoryRepository;
 import com.luizbarros.dscatalog.repositories.ProductRepository;
 import com.luizbarros.dscatalog.services.exceptions.DatabaseException;
 import com.luizbarros.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.luizbarros.dscatalog.tests.Factory;
+
+import jakarta.persistence.EntityNotFoundException;
 
 
 @ExtendWith(SpringExtension.class)
@@ -40,11 +44,15 @@ public class ProductServiceTests {
 	@Mock
 	private ProductRepository repository;
 	
+	@Mock
+	private CategoryRepository catRepository;
+	
 	private Long existingId;
 	private Long nonExistingId;
 	private Long dependentId;
 	private PageImpl<Product> page;
 	private Product product;
+	private Category category;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -52,6 +60,7 @@ public class ProductServiceTests {
 		nonExistingId = 1000L;
 		dependentId = 3L;
 		product = Factory.createProduct();
+		category = Factory.createCategory();
 		page = new PageImpl<>(List.of(product));
 		
 		when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
@@ -60,6 +69,12 @@ public class ProductServiceTests {
 		
 		when(repository.findById(existingId)).thenReturn(Optional.of(product));
 		when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+		
+		when(repository.getReferenceById(existingId)).thenReturn(product);
+		when(repository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+
+		when(catRepository.getReferenceById(existingId)).thenReturn(category);
+		when(catRepository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
 		
 		when(repository.existsById(existingId)).thenReturn(true);
 		when(repository.existsById(nonExistingId)).thenReturn(false);
