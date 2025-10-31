@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,6 +60,8 @@ public class ProductControllerTests {
 		
 		when(service.findById(existingId)).thenReturn(productDTO);
 		when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
+		
+		when(service.insert(any())).thenReturn(productDTO);
 		
 		when(service.update(eq(existingId), any())).thenReturn(productDTO);
 		when(service.update(eq(nonExistingId), any())).thenThrow(ResourceNotFoundException.class);
@@ -116,8 +119,20 @@ public class ProductControllerTests {
 	}
 	
 	@Test
-	public void insertShouldReturnCreatedAndProductDTO() {
-		//TODO
+	public void insertShouldReturnCreatedAndProductDTO() throws Exception {
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+		mockMvc.perform(post("/products", existingId)
+			.content(jsonBody)
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.id").exists())
+			.andExpect(jsonPath("$.name").exists())
+			.andExpect(jsonPath("$.description").exists())
+			.andExpect(jsonPath("$.price").exists())
+			.andExpect(jsonPath("$.imgUrl").exists())
+			.andExpect(jsonPath("$.date").exists())
+			.andExpect(jsonPath("$.categories").exists());
 	}
 	
 	@Test
