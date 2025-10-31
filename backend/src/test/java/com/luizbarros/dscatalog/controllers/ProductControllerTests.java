@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -120,12 +121,14 @@ public class ProductControllerTests {
 	}
 	
 	@Test
-	public void deleteShouldReturnNoContentWhenIdExists() {
-		//TODO
+	public void deleteShouldReturnNoContentWhenIdExists() throws Exception {
+		mockMvc.perform(delete("/products/{id}", existingId))
+			.andExpect(status().isNoContent());
 	}
 	
 	@Test
-	public void deleteShouldReturnNotFoundWhenIdDoesNotExists() {
-		//TODO
+	public void deleteShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {
+		mockMvc.perform(delete("/products/{id}", nonExistingId))
+		.andExpect(status().isNotFound());
 	}
 }
