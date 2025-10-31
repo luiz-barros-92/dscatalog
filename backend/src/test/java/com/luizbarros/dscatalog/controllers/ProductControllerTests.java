@@ -2,6 +2,8 @@ package com.luizbarros.dscatalog.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luizbarros.dscatalog.dto.ProductDTO;
 import com.luizbarros.dscatalog.services.ProductService;
+import com.luizbarros.dscatalog.services.exceptions.DatabaseException;
 import com.luizbarros.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.luizbarros.dscatalog.tests.Factory;
 
@@ -39,6 +42,7 @@ public class ProductControllerTests {
 	
 	private Long existingId;
 	private Long nonExistingId;
+	private Long dependentId;
 	private ProductDTO productDTO;
 	private PageImpl<ProductDTO> page;
 	
@@ -46,6 +50,7 @@ public class ProductControllerTests {
 	void setUp() throws Exception {
 		existingId = 1L;
 		nonExistingId = 100L;
+		dependentId = 3L;
 		productDTO = Factory.createProductDTO();
 		page = new PageImpl<ProductDTO>(List.of(productDTO));
 		
@@ -56,6 +61,10 @@ public class ProductControllerTests {
 		
 		when(service.update(eq(existingId), any())).thenReturn(productDTO);
 		when(service.update(eq(nonExistingId), any())).thenThrow(ResourceNotFoundException.class);
+		
+		doNothing().when(service).delete(existingId);
+		doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
+		doThrow(DatabaseException.class).when(service).delete(dependentId);
 	}
 	
 	@Test
@@ -103,5 +112,20 @@ public class ProductControllerTests {
 			.contentType(MediaType.APPLICATION_JSON)
 			.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void insertShouldReturnCreatedAndProductDTO() {
+		//TODO
+	}
+	
+	@Test
+	public void deleteShouldReturnNoContentWhenIdExists() {
+		//TODO
+	}
+	
+	@Test
+	public void deleteShouldReturnNotFoundWhenIdDoesNotExists() {
+		//TODO
 	}
 }
