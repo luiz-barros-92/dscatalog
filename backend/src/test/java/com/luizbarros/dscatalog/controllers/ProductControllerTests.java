@@ -142,8 +142,14 @@ public class ProductControllerTests {
 	}
 	
 	@Test
-	public void deleteShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {
+	public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
 		mockMvc.perform(delete("/products/{id}", nonExistingId))
 		.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void deleteShouldReturnDatabaseExceptionWhenIdIsDependent() throws Exception {
+		mockMvc.perform(delete("/products/{id}", dependentId))
+		.andExpect(status().isBadRequest());
 	}
 }

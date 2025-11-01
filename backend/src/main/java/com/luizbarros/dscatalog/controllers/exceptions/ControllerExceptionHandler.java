@@ -28,7 +28,7 @@ public class ControllerExceptionHandler {
 	}
 	
 	@ExceptionHandler(DatabaseException.class)
-	public ResponseEntity<StandardError> database(ResourceNotFoundException e, HttpServletRequest request) {
+	public ResponseEntity<StandardError> database(DatabaseException e, HttpServletRequest request) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		StandardError error = new StandardError(
 			Instant.now(),
