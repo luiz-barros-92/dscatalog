@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -36,6 +37,20 @@ public class ControllerExceptionHandler {
 			"Database exception",
 			e.getMessage(),
 			request.getRequestURI());
+		return ResponseEntity.status(status).body(error);		
+	}
+	
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<StandardError> validation(MethodArgumentNotValidException e, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+		StandardError error = new StandardError(
+			Instant.now(),
+			status.value(),
+			"Validation exception",
+			e.getMessage(),
+			request.getRequestURI()
+			//TODO validation message handler
+			);
 		return ResponseEntity.status(status).body(error);		
 	}
 }
