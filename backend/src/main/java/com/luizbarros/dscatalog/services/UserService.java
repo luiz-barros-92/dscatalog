@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +32,9 @@ public class UserService implements UserDetailsService{
 	
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
-	private final BCryptPasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 		
-	public UserService(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService{
 	@Transactional
 	public UserDTO insert(UserInsertDTO dto) {
 		User entity = new User();
-		DtoToEntity(dto, entity);
+		dtoToEntity(dto, entity);
 		entity.setPassword(passwordEncoder.encode(dto.getPassword()));
 		entity = userRepository.save(entity);
 		return new UserDTO(entity);
@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService{
 	public UserDTO update(Long id, UserUpdateDTO dto) {
 		try {
 			User entity = userRepository.getReferenceById(id);
-			DtoToEntity(dto, entity);
+			dtoToEntity(dto, entity);
 			entity = userRepository.save(entity);
 			return new UserDTO(entity);
 		}
@@ -89,7 +89,7 @@ public class UserService implements UserDetailsService{
 	   	}
 	}
 	
-	private void DtoToEntity(UserDTO dto, User entity) {
+	private void dtoToEntity(UserDTO dto, User entity) {
 		entity.setFirstName(dto.getFirstName());
 		entity.setLastName(dto.getLastName());
 		entity.setEmail(dto.getEmail());		
