@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -63,13 +63,15 @@ public class AuthorizationServerConfig {
 	@Value("${security.jwt.duration}")
 	private Integer jwtDurationSeconds;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	UserDetailsService userDetailsService;
+	
 	@Bean
 	@Order(2)
-	SecurityFilterChain asSecurityFilterChain(
-	    HttpSecurity http,	    
-	    UserDetailsService userDetailsService, 
-	    PasswordEncoder passwordEncoder
-	) throws Exception {
+	SecurityFilterChain asSecurityFilterChain(HttpSecurity http) throws Exception {
 
 	    http.securityMatcher("/oauth2/**", "/.well-known/**")
 	            .with(OAuth2AuthorizationServerConfigurer.authorizationServer(), Customizer.withDefaults());
@@ -102,17 +104,12 @@ public class AuthorizationServerConfig {
 	}
 
 	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
 	RegisteredClientRepository registeredClientRepository() {
 		// @formatter:off
 		RegisteredClient registeredClient = RegisteredClient
 			.withId(UUID.randomUUID().toString())
 			.clientId(clientId)
-			.clientSecret(passwordEncoder().encode(clientSecret))
+			.clientSecret(passwordEncoder.encode(clientSecret))
 			.scope("read")
 			.scope("write")
 			.authorizationGrantType(new AuthorizationGrantType("password"))
