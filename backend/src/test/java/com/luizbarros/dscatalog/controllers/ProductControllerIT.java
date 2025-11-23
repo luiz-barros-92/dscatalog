@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luizbarros.dscatalog.dto.ProductDTO;
 import com.luizbarros.dscatalog.tests.Factory;
+import com.luizbarros.dscatalog.tests.TokenUtil;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -26,15 +27,19 @@ public class ProductControllerIT {
 	@Autowired
 	private MockMvc mockMvc;
 	
+	@Autowired
+	private ObjectMapper objectMapper;
+	
+	@Autowired
+	private TokenUtil tokenUtil;
+	
 	private Long existingId;
 	private Long nonExistingId;
 	private Long countTotalProducts;
 	private ProductDTO productDTO;
 	private String expectedName;
 	private String expectedDescription;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
+	private String username, password, bearerToken;	
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -44,6 +49,9 @@ public class ProductControllerIT {
 		productDTO = Factory.createProductDTO();
 		expectedName = productDTO.name();
 		expectedDescription = productDTO.description();
+		username = "maria@gmail.com";
+		password = "123456";		
+		bearerToken = tokenUtil.obtainAccessToken(mockMvc, username, password);
 	}
 	
 	@Test
@@ -65,6 +73,7 @@ public class ProductControllerIT {
 	public void updateShouldReturnProductDTOWhenIdExists() throws Exception  {
 		String jsonBody = objectMapper.writeValueAsString(productDTO);
 		mockMvc.perform(put("/products/{id}", existingId)
+			.header("Authorization", "Bearer " + bearerToken)
 			.content(jsonBody)
 			.contentType(MediaType.APPLICATION_JSON)
 			.accept(MediaType.APPLICATION_JSON))
@@ -78,6 +87,7 @@ public class ProductControllerIT {
 	public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception  {
 		String jsonBody = objectMapper.writeValueAsString(productDTO);
 		mockMvc.perform(put("/products/{id}", nonExistingId)
+			.header("Authorization", "Bearer " + bearerToken)
 			.content(jsonBody)
 			.contentType(MediaType.APPLICATION_JSON)
 			.accept(MediaType.APPLICATION_JSON))

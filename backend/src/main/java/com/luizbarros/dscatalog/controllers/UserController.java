@@ -63,6 +63,7 @@ public class UserController {
 		return ResponseEntity.ok().body(newDto);
 	}
 	
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
