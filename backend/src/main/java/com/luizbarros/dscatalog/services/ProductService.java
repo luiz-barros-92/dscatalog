@@ -19,6 +19,7 @@ import com.luizbarros.dscatalog.projections.ProductProjection;
 import com.luizbarros.dscatalog.repositories.ProductRepository;
 import com.luizbarros.dscatalog.services.exceptions.DatabaseException;
 import com.luizbarros.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.luizbarros.dscatalog.util.Utils;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -98,9 +99,10 @@ public class ProductService {
 			.map(Long::parseLong)
 			.toList();
 		}		
-		Page <ProductProjection> page = repository.searchProducts(categoryIds, name, pageable);
-		List<Long> productIds = page.map(x -> x.getId()).toList();
+		Page <ProductProjection> page = repository.searchProducts(categoryIds, name.trim(), pageable);
+		List<Long> productIds = page.map(x -> x.getId()).toList();		
 		List<Product> entities = repository.searchProductsWithCategories(productIds);
+		entities = Utils.replace(page.getContent(), entities);
 		List<ProductDTO> dtos = entities.stream().map(p -> new ProductDTO(p)).toList();
 		return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
 	}
