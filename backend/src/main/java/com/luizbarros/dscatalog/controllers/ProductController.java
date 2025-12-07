@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.luizbarros.dscatalog.dto.ProductDTO;
-import com.luizbarros.dscatalog.projections.ProductProjection;
 import com.luizbarros.dscatalog.services.ProductService;
 
 import jakarta.validation.Valid;
@@ -34,7 +33,7 @@ public class ProductController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<Page<ProductProjection>> findAll(
+	public ResponseEntity<Page<ProductDTO>> findAll(
 			@RequestParam(defaultValue = "") String name,
 			@RequestParam(defaultValue = "0") String categoryId,
 			Pageable pageable){
