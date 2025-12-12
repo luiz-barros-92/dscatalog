@@ -20,12 +20,17 @@ public class AuthService {
 	@Value("${email.password-recover.token.minutes}")
 	private Long tokenMinutes;
 	
+	@Value("${email.password-recover.uri}")
+	private String recoverUri;
+	
 	private final UserRepository userRepository;
 	private final PasswordRecoverRepository passwordRecoverRepository;
+	private final EmailService emailService;
 	
-	public AuthService(UserRepository userRepository, PasswordRecoverRepository passwordRecoverRepository) {
+	public AuthService(UserRepository userRepository, PasswordRecoverRepository passwordRecoverRepository, EmailService emailService) {
 		this.userRepository = userRepository;
 		this.passwordRecoverRepository = passwordRecoverRepository;
+		this.emailService = emailService;
 	}
 
 	@Transactional
@@ -34,10 +39,15 @@ public class AuthService {
 		if(user == null) {
 			throw new ResourceNotFoundException("Email not found");			
 		}
+		String token = UUID.randomUUID().toString();
 		PasswordRecover entity = new PasswordRecover();
 		entity.setEmail(body.email());
-		entity.setToken(UUID.randomUUID().toString());
+		entity.setToken(token);
 		entity.setExpiration(Instant.now().plusSeconds(tokenMinutes * 60L));
 		entity = passwordRecoverRepository.save(entity);
+		
+		String message = "Acess link to set anew password:\n"
+				+ recoverUri + token + "Expires in " + tokenMinutes + " minutes.";
+		emailService.sendEmail(body.email(), "Password recover", message);
 	}
 }
