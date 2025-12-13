@@ -2,11 +2,13 @@ package com.luizbarros.dscatalog.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.luizbarros.dscatalog.dto.EmailDTO;
+import com.luizbarros.dscatalog.dto.NewPasswordDTO;
 import com.luizbarros.dscatalog.services.AuthService;
 
 import jakarta.validation.Valid;
@@ -25,5 +27,11 @@ public class AuthController {
 	public ResponseEntity<Void> createRecoverToken(@Valid @RequestBody EmailDTO body){
 		service.createRecoverToken(body);
 		return ResponseEntity.noContent().build();		
-	}	
+	}
+	
+	@PutMapping("/new-password")
+	public ResponseEntity<Void> saveNewPassword(@Valid @RequestBody NewPasswordDTO body){
+		service.saveNewPassword(body);
+		return ResponseEntity.noContent().build();		
+	}
 }
