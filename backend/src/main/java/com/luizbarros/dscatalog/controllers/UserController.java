@@ -67,5 +67,11 @@ public class UserController {
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
-	}	
+	}
+	
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
+	@GetMapping("/me")
+	public ResponseEntity<UserDTO> getMe() {
+		return ResponseEntity.ok().body(service.getMe());		
+	}
 }

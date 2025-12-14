@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,4 +72,16 @@ public class AuthService {
 		user.setPassword(passwordEncoder.encode(body.password()));
 		user = userRepository.save(user);
 	}
+	
+	protected User authenticated() {
+		try {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+		String username = jwtPrincipal.getClaim("username");
+		return userRepository.findByEmail(username);
+		}
+		catch (Exception e) {
+		throw new UsernameNotFoundException("Invalid user");
+		}
+		}
 }

@@ -33,11 +33,13 @@ public class UserService implements UserDetailsService{
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final AuthService authService;
 		
-	public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthService authService) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.authService = authService;
 	}
 
 	@Transactional(readOnly = true)
@@ -116,5 +118,11 @@ public class UserService implements UserDetailsService{
 			user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
 		}
 		return user;
+	}
+	
+	@Transactional(readOnly = true)
+	public UserDTO getMe() {
+		User entity = authService.authenticated();
+		return new UserDTO(entity);
 	}
 }
